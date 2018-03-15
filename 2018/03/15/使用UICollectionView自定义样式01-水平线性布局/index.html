@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="UICollectionView 是 iOS6 推出的 API, 可以实现复杂的定制效果, 使用和 UITableView 类似, 这篇主要通过自定义 UICollectionViewFlowLayout 实现一个左右滑动, 支持放大的相册效果 效果展示 思路 可以滚动, 必定继承自 UIScrollView 数据量未知, 为了避免内存过大导致 crash, 因此需要使用具有循环利用机制的控件,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用UICollectionView自定义样式01-水平线性布局">
+<meta property="og:url" content="http://yoursite.com/2018/03/15/使用UICollectionView自定义样式01-水平线性布局/index.html">
+<meta property="og:site_name" content="Alex&#39;s Field">
+<meta property="og:description" content="UICollectionView 是 iOS6 推出的 API, 可以实现复杂的定制效果, 使用和 UITableView 类似, 这篇主要通过自定义 UICollectionViewFlowLayout 实现一个左右滑动, 支持放大的相册效果 效果展示 思路 可以滚动, 必定继承自 UIScrollView 数据量未知, 为了避免内存过大导致 crash, 因此需要使用具有循环利用机制的控件,">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1141183-0d7c8baf4e22958f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-03-15T14:00:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用UICollectionView自定义样式01-水平线性布局">
+<meta name="twitter:description" content="UICollectionView 是 iOS6 推出的 API, 可以实现复杂的定制效果, 使用和 UITableView 类似, 这篇主要通过自定义 UICollectionViewFlowLayout 实现一个左右滑动, 支持放大的相册效果 效果展示 思路 可以滚动, 必定继承自 UIScrollView 数据量未知, 为了避免内存过大导致 crash, 因此需要使用具有循环利用机制的控件,">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1141183-0d7c8baf4e22958f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/15/使用UICollectionView自定义样式01-水平线性布局/"/>
+
+
+
+
+
+  <title>使用UICollectionView自定义样式01-水平线性布局 | Alex's Field</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Alex's Field</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/15/使用UICollectionView自定义样式01-水平线性布局/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jasperay">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Alex's Field">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用UICollectionView自定义样式01-水平线性布局</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-15T22:00:08+08:00">
+                2018-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>UICollectionView 是 iOS6 推出的 API, 可以实现复杂的定制效果, 使用和 UITableView 类似, 这篇主要通过自定义 UICollectionViewFlowLayout 实现一个左右滑动, 支持放大的相册效果</p>
+<h2 id="效果展示"><a href="#效果展示" class="headerlink" title="效果展示"></a>效果展示</h2><p><img src="http://upload-images.jianshu.io/upload_images/1141183-0d7c8baf4e22958f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="003.png"></p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ul>
+<li>可以滚动, 必定继承自 UIScrollView</li>
+<li>数据量未知, 为了避免内存过大导致 crash, 因此需要使用具有循环利用机制的控件, 否则还需要自写一套循环利机制</li>
+<li>UITableView 也可实现, 但是比较奇葩 (需要将整个 tableView 90 °, cell 内容旋转 90 °)</li>
+<li>自定义 UICollectionViewLayout 完全可以满足需求, 并实现一套完全可以复用的布局方案</li>
+<li>可继承自 UICollectionView 提供 的 UICollectionViewFlowLayout, 并在此基础上做改动</li>
+</ul>
+<h2 id="API-简介"><a href="#API-简介" class="headerlink" title="API 简介"></a>API 简介</h2><p>UICollectionViewLayout 提供了以下 API 控制自定义布局的样式, 实现定制效果</p>
+<h4 id="01-layoutAttributesForElementsInRect"><a href="#01-layoutAttributesForElementsInRect" class="headerlink" title="01 - layoutAttributesForElementsInRect:"></a>01 - layoutAttributesForElementsInRect:</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (nullable NSArray&lt;__kindof UICollectionViewLayoutAttributes *&gt; *)layoutAttributesForElementsInRect:(CGRect)rect; // return an array layout attributes instances for all the views in the given rect</span><br></pre></td></tr></table></figure>
+<ul>
+<li>这个方法的返回值是一个数组（数组里面存放着rect范围内所有元素的布局属性）</li>
+<li>这个方法的返回值决定了rect范围内所有元素的排布（frame)</li>
+<li>返回数组内存放的是 UICollectionViewLayoutAttributes 对象, 一个 cell 对应一个 UICollectionViewLayoutAttributes 对象, 该对象决定了 cell 的 frame</li>
+</ul>
+<h4 id="02-prepareLayout"><a href="#02-prepareLayout" class="headerlink" title="02 - prepareLayout"></a>02 - prepareLayout</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)prepareLayout;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>用来做布局的初始化操作</li>
+<li>不建议在 init 方法中进行布局的初始化操作</li>
+<li>一定要调用[super prepareLayout], 官方文档中有明确注释, Subclasses should always call super if they override.</li>
+</ul>
+<h4 id="03-shouldInvalidateLayoutForBoundsChange"><a href="#03-shouldInvalidateLayoutForBoundsChange" class="headerlink" title="03 - shouldInvalidateLayoutForBoundsChange:"></a>03 - shouldInvalidateLayoutForBoundsChange:</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds; // return YES to cause the collection view to requery the layout for geometry information</span><br></pre></td></tr></table></figure>
+<p>如果返回YES，那么collectionView显示的范围发生改变时，就会重新刷新布局<br>一旦重新刷新布局，就会按顺序调用下面的方法：</p>
+<ul>
+<li>prepareLayout</li>
+<li>layoutAttributesForElementsInRect:</li>
+</ul>
+<h4 id="04-targetContentOffsetForProposedContentOffset"><a href="#04-targetContentOffsetForProposedContentOffset" class="headerlink" title="04 - targetContentOffsetForProposedContentOffset:"></a>04 - targetContentOffsetForProposedContentOffset:</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity; // return a point at which to rest after scrolling - for layouts that want snap-to-point scrolling behavior</span><br></pre></td></tr></table></figure>
+<p>这个方法的返回值，就决定了collectionView停止滚动时的偏移量<br>参数：</p>
+<ul>
+<li>proposedContentOffset：collectionView停止滚动时最终的偏移</li>
+<li>velocity：滚动速率，通过这个参数可以了解滚动的方向</li>
+</ul>
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><h4 id="01-重写-layoutAttributesForElementsInRect-方法"><a href="#01-重写-layoutAttributesForElementsInRect-方法" class="headerlink" title="01 - 重写 layoutAttributesForElementsInRect: 方法]"></a>01 - 重写 layoutAttributesForElementsInRect: 方法]</h4><ul>
+<li>调用 [super layoutAttributesForElementsInRect], 拿到父类算好的 cell 布局属性(位置和尺寸)数组  </li>
+<li>遍历布局属性数组, 修改每个 cell 布局属性的缩放比例 scale (原则应该是在一定范围内, cell 距离 collectionView 的 contentView 中心线越近, cell 显示比例越大)</li>
+<li><p>在父类算好的基础上进行修改 (transform), 修改完后, 返回这个数组即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect</span><br><span class="line">&#123;</span><br><span class="line">  // 获得super已经计算好的布局属性</span><br><span class="line">  NSArray *array = [super layoutAttributesForElementsInRect:rect];</span><br><span class="line"> </span><br><span class="line">  // 计算collectionView最中心点的x值</span><br><span class="line">  CGFloat centerX = self.collectionView.contentOffset.x + self.collectionView.frame.size.width * 0.5;</span><br><span class="line"> </span><br><span class="line">  // 在原有布局属性的基础上，进行微调</span><br><span class="line">  for (UICollectionViewLayoutAttributes *attrs in array) &#123;</span><br><span class="line">    // cell的中心点x 和 collectionView最中心点的x值 的间距</span><br><span class="line">    CGFloat delta = ABS(attrs.center.x - centerX);</span><br><span class="line">   </span><br><span class="line">    // 根据间距值 计算 cell的缩放比例</span><br><span class="line">    CGFloat scale = 1 - delta / self.collectionView.frame.size.width;</span><br><span class="line">   </span><br><span class="line">    // 设置缩放比例</span><br><span class="line">    attrs.transform = CGAffineTransformMakeScale(scale, scale);</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  return array;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="02-重写-shouldInvalidateLayoutForBoundsChange-方法-返回-YES"><a href="#02-重写-shouldInvalidateLayoutForBoundsChange-方法-返回-YES" class="headerlink" title="02 -  重写 shouldInvalidateLayoutForBoundsChange 方法, 返回 YES"></a>02 -  重写 shouldInvalidateLayoutForBoundsChange 方法, 返回 YES</h4><p>意味着当collectionView显示的范围发生改变时，就会重新刷新布局, 一旦刷新布局, 就会按顺序调用:</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)prepareLayout;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (nullable NSArray&lt;__kindof UICollectionViewLayoutAttributes *&gt; *)layoutAttributesForElementsInRect:(CGRect)rect; // return an array layout attributes instances for all the views in the given rect</span><br></pre></td></tr></table></figure>
+<h4 id="03-重写-targetContentOffsetForProposedContentOffset-方法决定-collectionView-停止滚动时的偏移量"><a href="#03-重写-targetContentOffsetForProposedContentOffset-方法决定-collectionView-停止滚动时的偏移量" class="headerlink" title="03 - 重写 targetContentOffsetForProposedContentOffset: 方法决定 collectionView 停止滚动时的偏移量"></a>03 - 重写 targetContentOffsetForProposedContentOffset: 方法决定 collectionView 停止滚动时的偏移量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity</span><br><span class="line">&#123;</span><br><span class="line">  // 计算出最终显示的矩形框</span><br><span class="line">  CGRect rect;</span><br><span class="line">  rect.origin.y = 0;</span><br><span class="line">  rect.origin.x = proposedContentOffset.x;</span><br><span class="line">  rect.size = self.collectionView.frame.size;</span><br><span class="line"> </span><br><span class="line">  // 获得super已经计算好的布局属性</span><br><span class="line">  NSArray *array = [super layoutAttributesForElementsInRect:rect];</span><br><span class="line"> </span><br><span class="line">  // 计算collectionView最中心点的x值</span><br><span class="line">  CGFloat centerX = proposedContentOffset.x + self.collectionView.frame.size.width * 0.5;</span><br><span class="line"> </span><br><span class="line">  // 存放最小的间距值</span><br><span class="line">  CGFloat minDelta = MAXFLOAT;</span><br><span class="line">  for (UICollectionViewLayoutAttributes *attrs in array) &#123;</span><br><span class="line">    if (ABS(minDelta) &gt; ABS(attrs.center.x - centerX)) &#123;</span><br><span class="line">      minDelta = attrs.center.x - centerX;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  // 修改原有的偏移量</span><br><span class="line">  proposedContentOffset.x += minDelta;</span><br><span class="line">  return proposedContentOffset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="04-补充-关于-scale-缩放比例"><a href="#04-补充-关于-scale-缩放比例" class="headerlink" title="04 - (补充) 关于 scale - 缩放比例"></a>04 - (补充) 关于 scale - 缩放比例</h4><p> 计算出 cell 的中心线和 collectionView 的 contentView 的中心线的绝对距离 delta</p>
+<ul>
+<li><p>计算collectionView最中心点的x值</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGFloat centerX = self.collectionView.contentOffset.x + self.collectionView.frame.size.width * 0.5;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>计算cell的中心点 x 和 collectionView 最中心点的 x 值的间距</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGFloat delta = ABS(attrs.center.x - centerX);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>根据 delta, 加一定系数, 算出 scale</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGFloat scale = 1 - delta / self.collectionView.frame.size.width;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="UICollectionView-的优点"><a href="#UICollectionView-的优点" class="headerlink" title="UICollectionView 的优点"></a>UICollectionView 的优点</h2><ul>
+<li>相对与功能简单的 TableView, 能实现复杂的定制效果</li>
+<li>内部缓存机制, cell 复用</li>
+<li>TableView 类似的 dataSource, delegate 方法, 简单易用的 API</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>UICollectionView 提供的自定义 layout 功能可以方便定制很多效果, 比如电商应用常见的瀑布流, tagView 等等</li>
+<li>UITableView 是以行为单位, 功能有限, 而 UICollectionView 可以方便的通过自定 layout 实现各种不同效果</li>
+<li>UICollectionView 也可以通过自定 layout 实现 UITableView</li>
+<li>UICollectionView 内部的循环利用机制可以有效的节约内存, 防止程序 crash</li>
+</ul>
+<h2 id="程序代码地址"><a href="#程序代码地址" class="headerlink" title="程序代码地址"></a>程序代码地址</h2><p><a href="https://git.oschina.net/aLonelyRoot3/AYCustomLayout.git" target="_blank" rel="noopener">https://git.oschina.net/aLonelyRoot3/AYCustomLayout.git</a><br>UICollectionView 实现的很多其他流行效果会在以后贴出</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/15/const修饰全局变量取代宏定义/" rel="next" title="const修饰全局变量取代宏定义">
+                <i class="fa fa-chevron-left"></i> const修饰全局变量取代宏定义
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/15/Runloop浅析/" rel="prev" title="Runloop浅析">
+                Runloop浅析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jasperay</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#效果展示"><span class="nav-number">1.</span> <span class="nav-text">效果展示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路"><span class="nav-number">2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#API-简介"><span class="nav-number">3.</span> <span class="nav-text">API 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#01-layoutAttributesForElementsInRect"><span class="nav-number">3.0.1.</span> <span class="nav-text">01 - layoutAttributesForElementsInRect:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#02-prepareLayout"><span class="nav-number">3.0.2.</span> <span class="nav-text">02 - prepareLayout</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#03-shouldInvalidateLayoutForBoundsChange"><span class="nav-number">3.0.3.</span> <span class="nav-text">03 - shouldInvalidateLayoutForBoundsChange:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#04-targetContentOffsetForProposedContentOffset"><span class="nav-number">3.0.4.</span> <span class="nav-text">04 - targetContentOffsetForProposedContentOffset:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体实现"><span class="nav-number">4.</span> <span class="nav-text">具体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#01-重写-layoutAttributesForElementsInRect-方法"><span class="nav-number">4.0.1.</span> <span class="nav-text">01 - 重写 layoutAttributesForElementsInRect: 方法]</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#02-重写-shouldInvalidateLayoutForBoundsChange-方法-返回-YES"><span class="nav-number">4.0.2.</span> <span class="nav-text">02 -  重写 shouldInvalidateLayoutForBoundsChange 方法, 返回 YES</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#03-重写-targetContentOffsetForProposedContentOffset-方法决定-collectionView-停止滚动时的偏移量"><span class="nav-number">4.0.3.</span> <span class="nav-text">03 - 重写 targetContentOffsetForProposedContentOffset: 方法决定 collectionView 停止滚动时的偏移量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#04-补充-关于-scale-缩放比例"><span class="nav-number">4.0.4.</span> <span class="nav-text">04 - (补充) 关于 scale - 缩放比例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UICollectionView-的优点"><span class="nav-number">5.</span> <span class="nav-text">UICollectionView 的优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#程序代码地址"><span class="nav-number">7.</span> <span class="nav-text">程序代码地址</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jasperay</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

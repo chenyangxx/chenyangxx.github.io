@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="宏定义C系程序中广泛使用宏定义,宏只是一种简单的字符串替换，根据是否带参数分为无参和带参1234567891011// 宽高#define kWBCellTopMargin 8      // cell 顶部灰色留白#define kWBCellTitleHeight 36   // cell 标题高度 (例如&amp;quot;仅自己可见&amp;quot;)#define kWBCellPadding 12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="const修饰全局变量取代宏定义">
+<meta property="og:url" content="http://yoursite.com/2018/03/15/const修饰全局变量取代宏定义/index.html">
+<meta property="og:site_name" content="Alex&#39;s Field">
+<meta property="og:description" content="宏定义C系程序中广泛使用宏定义,宏只是一种简单的字符串替换，根据是否带参数分为无参和带参1234567891011// 宽高#define kWBCellTopMargin 8      // cell 顶部灰色留白#define kWBCellTitleHeight 36   // cell 标题高度 (例如&amp;quot;仅自己可见&amp;quot;)#define kWBCellPadding 12">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-15T13:58:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="const修饰全局变量取代宏定义">
+<meta name="twitter:description" content="宏定义C系程序中广泛使用宏定义,宏只是一种简单的字符串替换，根据是否带参数分为无参和带参1234567891011// 宽高#define kWBCellTopMargin 8      // cell 顶部灰色留白#define kWBCellTitleHeight 36   // cell 标题高度 (例如&amp;quot;仅自己可见&amp;quot;)#define kWBCellPadding 12">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/15/const修饰全局变量取代宏定义/"/>
+
+
+
+
+
+  <title>const修饰全局变量取代宏定义 | Alex's Field</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Alex's Field</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/15/const修饰全局变量取代宏定义/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jasperay">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Alex's Field">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">const修饰全局变量取代宏定义</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-15T21:56:58+08:00">
+                2018-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h2><p>C系程序中广泛使用宏定义,宏只是一种简单的字符串替换，根据是否带参数分为无参和带参<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 宽高</span><br><span class="line">#define kWBCellTopMargin 8      // cell 顶部灰色留白</span><br><span class="line">#define kWBCellTitleHeight 36   // cell 标题高度 (例如&quot;仅自己可见&quot;)</span><br><span class="line">#define kWBCellPadding 12       // cell 内边距</span><br><span class="line">#define kWBCellPaddingText 10   // cell 文本与其他元素间留白</span><br><span class="line">#define kWBCellPaddingPic 4     // cell 多张图片中间留白</span><br><span class="line">#define kWBCellProfileHeight 56 // cell 名片高度</span><br><span class="line">#define kWBCellCardHeight 70    // cell card 视图高度</span><br><span class="line">#define kWBCellNamePaddingLeft 14 // cell 名字和 avatar 之间留白</span><br><span class="line">#define kWBCellContentWidth (kScreenWidth - 2 * kWBCellPadding) // cell 内容宽度</span><br><span class="line">#define kWBCellNameWidth (kScreenWidth - 110) // cell 名字最宽限制</span><br></pre></td></tr></table></figure></p>
+<p>开发中可能用这么一大堆的宏定义来记录某段间距, 某个视图的高度, 或者某段字符串等, 宏定义可以简单的理解为一个常量</p>
+<p>###宏的优点<br>这样做的目的在于用一个比较清楚的名称记录某个常量, 集中在某个区域管理这些常量, 在以后方便修改,修改一处便可以修改全局</p>
+<p>###宏的缺点<br>但是如果一份代码中有多处需要访问某个宏的值, 这种方法就变得不可行</p>
+<ul>
+<li><p>你可能会想到将这些宏定义放入.pch文件内,这样不就可以办到全局访问了, 但是这样会使.pch文件内部变得十分臃肿</p>
+</li>
+<li><p>你可能又会想到将这些宏定义在一个头文件内, 然后再将这个头文件导入到.pch文件内, 这样就可以办到全局访问了, 但是这样仍然存在问题</p>
+</li>
+<li><p>比如我的一份代码内有10处用到kWBCellTopMargin这个宏, 每次用到这个宏, 系统相当于需要分配一块临时内存给这个宏, 这样累计多了, 会比较浪费</p>
+</li>
+</ul>
+<h2 id="const修饰的全局变量"><a href="#const修饰的全局变量" class="headerlink" title="const修饰的全局变量"></a>const修饰的全局变量</h2><p>比较好的做法应该是使用”全局常量”, 类似于这种形式</p>
+<ul>
+<li>const CGFloat AYAlpha = 0.5;</li>
+<li>const NSString *AYName = @”陈洋”;</li>
+</ul>
+<p>为了保证这个变量不被其他地方修改,做到只读, 使用const修饰,变量也就变为了常量</p>
+<h3 id="const全局变量的优势"><a href="#const全局变量的优势" class="headerlink" title="const全局变量的优势"></a>const全局变量的优势</h3><ul>
+<li>这样也保证了常量在创建的时候, 开辟一块内存, 而全局的其他地方, 只是访问它, 不会开辟临时内存</li>
+<li>完全可以代替宏的作用</li>
+</ul>
+<h3 id="建议做法"><a href="#建议做法" class="headerlink" title="建议做法"></a>建议做法</h3><p>为了集中管理, 分清业务逻辑, 可以在工程内单独建立一个文件管理这些”全局常量”</p>
+<p>一般情况, 我会在工程内搞一个名为AYConst的.h和.m文件, 注意这两个文件并不是构成一个类, 并不具备类的入口, 这样命名只是为了层次清楚</p>
+<p>.m文件 (保存全局常量)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;UIKit/UIKit.h&gt;</span><br><span class="line"></span><br><span class="line">const CGFloat AYCellTopMargin = 8.0;</span><br><span class="line">const CGFloat AYCellLeftMargin = 0.6;</span><br><span class="line">const CGFloat AYCellRightMargin = 0.7;</span><br><span class="line">const CGFloat AYAlpha = 1.0;</span><br><span class="line">NSString * const AYName = @&quot;jack&quot;;</span><br></pre></td></tr></table></figure></p>
+<p>.h文件(此文件导入到.pch文件, 让每个文件都可以引用)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;UIKit/UIKit.h&gt;</span><br><span class="line"></span><br><span class="line">UIKIT_EXTERN const CGFloat AYCellTopMargin;</span><br><span class="line">UIKIT_EXTERN const CGFloat AYCellLeftMargin;</span><br><span class="line">UIKIT_EXTERN const CGFloat AYCellRightMargin;</span><br><span class="line">UIKIT_EXTERN const CGFloat AYAlpha;</span><br><span class="line">UIKIT_EXTERN NSString * const AYName;</span><br></pre></td></tr></table></figure></p>
+<p>我会根据需求，将.h导入合适的位置，对应使用的类也会引用到存在于.m文件中的这些全局常量</p>
+<p>###关于UIKIT_EXTERN关键字<br>UIKIT_EXTERN关键字是OC中苹果推荐的引用外部变量的关键字, 实际就是extern关键字的OC优化,作用和extern一致,引用外部变量需要的关键字</p>
+<h2 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h2><p>###关于const关键字的位置问题</p>
+<ul>
+<li>const NSString *p;</li>
+<li>NSString const *p;</li>
+<li>NSString *const p;</li>
+</ul>
+<p>判断准则: 看const右侧修饰的变量是谁</p>
+<ul>
+<li>前两个都是修饰的*p,也就是指针指向的变量是”readOnly”的,指针p是可以指向其他内存空间的,前两种写法一致</li>
+<li>最后一个修饰的是p,也就是指针p不能再指向其他内存空间, 但是p指向的变量却是可以改变的</li>
+</ul>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/15/理解iOS中的GCD/" rel="next" title="理解iOS中的GCD">
+                <i class="fa fa-chevron-left"></i> 理解iOS中的GCD
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/15/使用UICollectionView自定义样式01-水平线性布局/" rel="prev" title="使用UICollectionView自定义样式01-水平线性布局">
+                使用UICollectionView自定义样式01-水平线性布局 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jasperay</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#宏定义"><span class="nav-number">1.</span> <span class="nav-text">宏定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#const修饰的全局变量"><span class="nav-number">2.</span> <span class="nav-text">const修饰的全局变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#const全局变量的优势"><span class="nav-number">2.1.</span> <span class="nav-text">const全局变量的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#建议做法"><span class="nav-number">2.2.</span> <span class="nav-text">建议做法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充知识"><span class="nav-number">3.</span> <span class="nav-text">补充知识</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jasperay</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

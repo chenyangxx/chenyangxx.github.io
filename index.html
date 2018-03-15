@@ -187,36 +187,6 @@
         </li>
       
         
-        <li class="menu-item menu-item-about">
-          <a href="/about/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
@@ -245,6 +215,1100 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/15/Runloop浅析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jasperay">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Alex's Field">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/15/Runloop浅析/" itemprop="url">Runloop浅析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-15T22:02:08+08:00">
+                2018-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="什么是Runloop"><a href="#什么是Runloop" class="headerlink" title="什么是Runloop"></a>什么是Runloop</h2><p><img src="http://upload-images.jianshu.io/upload_images/1141183-1e969725ecf1b334.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="RunLoop01.png"></p>
+<ul>
+<li>运行循环</li>
+<li>跑圈</li>
+<li>内部类似一个 do-while 循环, 在循环内部不断处理各种任务 (Source, Observe, Timer)</li>
+<li>一个线程对应一个 RunLoop</li>
+</ul>
+<h2 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h2><ul>
+<li>保持程序持续运行</li>
+<li>处理 APP 各种事件 (触摸事件, 定时器事件, Selector事件)</li>
+<li>节省 CPU 资源, 提高程序性能: 该做事情的时候做事情, 该休息时休息</li>
+</ul>
+<h2 id="没有RunLoop"><a href="#没有RunLoop" class="headerlink" title="没有RunLoop"></a>没有RunLoop</h2><p>程序一启动就结束了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">    NSLog(@&quot;execute main function&quot;);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="如果有了-RunLoop"><a href="#如果有了-RunLoop" class="headerlink" title="如果有了 RunLoop"></a>如果有了 RunLoop</h2><p>程序大致是这样子,但是要更加复杂</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">    BOOL running = YES;</span><br><span class="line">    do &#123;</span><br><span class="line">        // 执行各种任务，处理各种事件</span><br><span class="line">             // ......</span><br><span class="line">    &#125; while (running);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于 main 函数里面启动了一个 RunLoop, 因此程序不会马上退出, 会保持程序的运行状态</p>
+<h2 id="main-函数中的-RunLoop"><a href="#main-函数中的-RunLoop" class="headerlink" title="main 函数中的 RunLoop"></a>main 函数中的 RunLoop</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, char * argv[]) &#123;</span><br><span class="line">    @autoreleasepool &#123;</span><br><span class="line">        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>UIApplicationMain 函数内部启动了一个 RunLoop 对象</li>
+<li>UIApplicationMain 函数一直没有返回, 保持了程序的运行</li>
+<li>这个默认启动的 RunLoop 是与主线程相关</li>
+</ul>
+<h2 id="程序一旦启动"><a href="#程序一旦启动" class="headerlink" title="程序一旦启动"></a>程序一旦启动</h2><ul>
+<li>执行UIApplicationMain 函数</li>
+<li>默认启动一个 RunLoop</li>
+<li>这个 RunLoop 会一直处理主线程相关的事情</li>
+<li>这个 RunLoop 会一直遍历, 监听用户事件</li>
+<li>这就是主线程的事件响应的这么快的原因</li>
+</ul>
+<h2 id="RunLoop-要想跑圈"><a href="#RunLoop-要想跑圈" class="headerlink" title="RunLoop 要想跑圈"></a>RunLoop 要想跑圈</h2><ul>
+<li>模式(Mode)里面要有东西 (事件源 / Observer / 定时器)</li>
+<li>RunLoop 要启动 (主线程默认创建并启动, 子线程需要手动启动)</li>
+<li>没有事件源, 没有定时器, RunLoop 就会进入睡眠状态</li>
+</ul>
+<h2 id="RunLoop-对象"><a href="#RunLoop-对象" class="headerlink" title="RunLoop 对象"></a>RunLoop 对象</h2><p>iOS 中提供了两套 API 来访问和使用 RunLoop</p>
+<ul>
+<li>Foundation : NSRunLoop</li>
+<li>Core Foundation : CFRunLoopRef</li>
+</ul>
+<p>NSRunLoop 是基于 CFRunLoopRef 的OC 包装, 如果研究 RunLoop 内部结构, 需要研究 CFRunLoopRef</p>
+<h2 id="RunLoop-与线程"><a href="#RunLoop-与线程" class="headerlink" title="RunLoop 与线程"></a>RunLoop 与线程</h2><ul>
+<li>每条线程都有唯一一个与之对应的 RunLoop 对象</li>
+<li>主线程的 RunLoop 已经创建好, 子线程的 RunLoop 需要手动创建</li>
+<li>RunLoop 在第一次获取时创建, 在线程结束时销毁</li>
+<li>RunLoop 对象是使用字典存储, 以线程作为 key</li>
+</ul>
+<h2 id="RunLoop-相关类"><a href="#RunLoop-相关类" class="headerlink" title="RunLoop 相关类"></a>RunLoop 相关类</h2><p><img src="http://upload-images.jianshu.io/upload_images/1141183-1c20a8b3169b5cb3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="RunLoop02.png"></p>
+<h3 id="01-CFRunLoopModeRef"><a href="#01-CFRunLoopModeRef" class="headerlink" title="01 - CFRunLoopModeRef"></a>01 - CFRunLoopModeRef</h3><ul>
+<li>CFRunLoopModeRef 代表着RunLoop的运行模式</li>
+<li>一个RunLoop包含若干个Mode,每个Mode又包含若干个 Source/Timer/Observer</li>
+<li>每次RunLoop启动时, 都会指定其中一个Mode, 这个Mode被称作CurrentMode</li>
+<li>如果需要切换 Mode, 只能退出 RunLoop, 再重新指定一个 Mode 进入</li>
+</ul>
+<p> 系统默认注册了 5 个 Mode :</p>
+<ul>
+<li>kCFRunLoopDefultMode : APP 的默认 Mode, 通常主线程是在这个 Mode下</li>
+<li>UITrackingRunLoopMode :<br>界面跟踪 Mode, 用于 scrollView 跟踪触摸滑动, 保证界面不受其他 Mode 影响 (添加定时器不好使)</li>
+<li>UIInitializationRunLoopMode :<br>在刚启动 APP 时进入的第一个 Mode, 启动完就不再使用</li>
+<li>GSEventReceiveRunLoopMode :<br>接收系统事件的内部 Mode, 通常用不到</li>
+<li>kCFRunLoopCommonModes :<br>这是一个占位用的 Mode, 不是一个真正的 Mode (也就说 RunLoop 无法启动此模式)</li>
+</ul>
+<h3 id="02-CFRunLoopTimerRef"><a href="#02-CFRunLoopTimerRef" class="headerlink" title="02 - CFRunLoopTimerRef"></a>02 - CFRunLoopTimerRef</h3><ul>
+<li>CFRunLoopTimerRef 是基于时间的触发器</li>
+<li>基本上相当于 NSTimer</li>
+<li>定时器会跑在 common modes 模式下</li>
+<li>标记为 common modes 的模式有:<ul>
+<li>kCFRunLoopDefultMode</li>
+<li>UITrackingRunLoopMode</li>
+</ul>
+</li>
+</ul>
+<h4 id="定时器添加到-kCFRunLoopDefultMode"><a href="#定时器添加到-kCFRunLoopDefultMode" class="headerlink" title="定时器添加到 kCFRunLoopDefultMode"></a>定时器添加到 kCFRunLoopDefultMode</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSTimer *timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(run) userInfo:nil repeats:YES];</span><br><span class="line">[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];</span><br></pre></td></tr></table></figure>
+<p>将定时器添加到 NSDefaultRunLoopMode , 滑动 scollView 的时候, 定时器就会停止执行, RunLoop 此时会自动切换到 UITrackingRunLoopMode 模式, 定时器就会停止执行</p>
+<h4 id="定时器添加到-NSRunLoopCommonModes"><a href="#定时器添加到-NSRunLoopCommonModes" class="headerlink" title="定时器添加到 NSRunLoopCommonModes"></a>定时器添加到 NSRunLoopCommonModes</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSTimer *timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(run) userInfo:nil repeats:YES];</span><br><span class="line">[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];</span><br></pre></td></tr></table></figure>
+<p>将定时器添加到 NSRunLoopCommonModes, 此时就不会停止执行</p>
+<h3 id="03-CFRunLoopSourceRef"><a href="#03-CFRunLoopSourceRef" class="headerlink" title="03 - CFRunLoopSourceRef"></a>03 - CFRunLoopSourceRef</h3><ul>
+<li>CFRunLoopSourceRef是事件源（输入源）</li>
+</ul>
+<h4 id="以前的分法"><a href="#以前的分法" class="headerlink" title="以前的分法"></a>以前的分法</h4><ul>
+<li>Port-Based Sources</li>
+<li>Custom Input Sources</li>
+<li>Cocoa Perform Selector Sources</li>
+</ul>
+<p>####现在的分法</p>
+<ul>
+<li>Source0：非基于Port的</li>
+<li>Source1：基于Port的</li>
+</ul>
+<h3 id="04-CFRunLoopObserverRef"><a href="#04-CFRunLoopObserverRef" class="headerlink" title="04 - CFRunLoopObserverRef"></a>04 - CFRunLoopObserverRef</h3><ul>
+<li>CFRunLoopObserverRef是观察者，能够监听RunLoop的状态改变</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">- (void)observer</span><br><span class="line">&#123;</span><br><span class="line">    // 创建observer</span><br><span class="line">    CFRunLoopObserverRef observer = CFRunLoopObserverCreateWithHandler(CFAllocatorGetDefault(), kCFRunLoopAllActivities, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) &#123;</span><br><span class="line">        NSLog(@&quot;----监听到RunLoop状态发生改变---%zd&quot;, activity);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    // 添加观察者：监听RunLoop的状态</span><br><span class="line">    CFRunLoopAddObserver(CFRunLoopGetCurrent(), observer, kCFRunLoopDefaultMode);</span><br><span class="line"></span><br><span class="line">    // 释放Observer</span><br><span class="line">    CFRelease(observer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>可以监听的时间点有以下几个</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/* Run Loop Observer Activities */</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">    kCFRunLoopEntry = (1UL &lt;&lt; 0), // 即将进入 Loop</span><br><span class="line">    kCFRunLoopBeforeTimers = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">    kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">    kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">    kCFRunLoopAfterWaiting = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">    kCFRunLoopExit = (1UL &lt;&lt; 7), // 即将推出 Loop</span><br><span class="line">    kCFRunLoopAllActivities = 0x0FFFFFFFU // 所有事件</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="RunLoop-处理逻辑"><a href="#RunLoop-处理逻辑" class="headerlink" title="RunLoop 处理逻辑"></a>RunLoop 处理逻辑</h2><p>下图简介了 RunLoop 处理过程, 一个线程的 RunLoop 在存在事件源 / 定时器的条件下, 会不断的处理事件, 处理的事件包括 </p>
+<ul>
+<li>处理基于 port 的 CFRunLoopSourceRef</li>
+<li>处理 customer 自定义事件源</li>
+<li>处理 selector 事件</li>
+<li>处理定时器执行</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1141183-a32fbe3bd934f252.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="RunLoop处理逻辑(官方示意图).png"></p>
+<p>官方的图解很清楚, RunLoop 在不停的跑圈, 跑圈的前提是满足以下条件之一:</p>
+<ul>
+<li>输入源 (事件源), 即 CFRunLoopSourceRef, 基于端口的输入源 (port) 和 自定义输入源 (custom), 当然还包含 performSelector:onThread…</li>
+<li>拥有添加在 RunLoop 内的定时器</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1141183-5b6860cd100c6a1c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="RunLoop处理逻辑(网友整理).png"></p>
+<h2 id="RunLoop-实际应用"><a href="#RunLoop-实际应用" class="headerlink" title="RunLoop 实际应用"></a>RunLoop 实际应用</h2><h3 id="1-常驻线程"><a href="#1-常驻线程" class="headerlink" title="(1) 常驻线程"></a>(1) 常驻线程</h3><p>即让子线程处于 “不消亡” 的状态, 一直在后台处理某些频发事件 / 等待其他线程发来消息</p>
+<ul>
+<li>在子线程监控网络状态</li>
+<li>在子线程开启一个定时器</li>
+<li>在子线程长期监控其他行为</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+ (void)networkRequestThreadEntryPoint:(id)__unused object &#123; </span><br><span class="line">    @autoreleasepool &#123; </span><br><span class="line">        [[NSThread currentThread] setName:@&quot;AFNetworking&quot;];        </span><br><span class="line">         NSRunLoop *runLoop = [NSRunLoop currentRunLoop];       </span><br><span class="line">        [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode]; [runLoop run]; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>摘自 AFNetworking 源代码, AFN这样做的原理在于子线程下默认不开启 RunLoop, 需要手动开启, 而 RunLoop 不断跑圈需要满足以下条件之一 :</p>
+<ul>
+<li>RunLoop有事件源(输入源), 包含基于端口 (port) 的事件源 / custom 事件源等</li>
+<li>RunLoop存在定时器<br>因此, AFN为RunLoop的default模式增加了一个NSMachPort端口(实际上也可以是其他端口),也就相当于为RunLoop添加了事件源, 因此RunLoop可以不断的跑圈, 保证线程的不死状态<br>顺便提一下, AFN保持一个常驻线程的原因, 第一是因为子线程默认不会开启RunLoop, 它会像一个C语言程序一样运行完所有代码后退出线程, 而网络请求是异步的, 这就可能会出现通过网络请求获取到数据之后, 线程已经退出, 无法执行请求成功/失败的代理方法, 因此AFN开启了一个RunLoop, 保活了线程</li>
+</ul>
+<h3 id="2-控制定时器在特定模式下运行"><a href="#2-控制定时器在特定模式下运行" class="headerlink" title="(2) 控制定时器在特定模式下运行"></a>(2) 控制定时器在特定模式下运行</h3><p>即可以将计时器 timer 添加到 kCFRunLoopDefultMode 下, 如果 RunLoop 切换到 UITrackingRunLoopMode (UIScrollView 滚动过程中), 那么定时器就会暂停执行, 等到滚动结束, 定时器就会继续执行<br>也可以将定时器 timer 添加到 NSRunLoopCommonModes 下, 此时不管有无 scrollView 滑动, 都不会影响 timer 的执行</p>
+<h3 id="3-控制某些事件在特定模式下执行"><a href="#3-控制某些事件在特定模式下执行" class="headerlink" title="(3) 控制某些事件在特定模式下执行"></a>(3) 控制某些事件在特定模式下执行</h3><p>即可以让某个 selector 在某个线程 (key) 的 RunLoop 下的特定模式下执行 (数组中包含 Mode)</p>
+<p>通过以下的 API :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)performSelector:(SEL)aSelector onThread:(NSThread *)thr withObject:(nullable id)arg waitUntilDone:(BOOL)wait modes:(nullable NSArray&lt;NSString *&gt; *)array NS_AVAILABLE(10_5, 2_0);</span><br></pre></td></tr></table></figure>
+<h3 id="4-添加-Observer-监听-RunLoop-状态-可以监听点击事件的处理-在所有点击事件之前做一些事情"><a href="#4-添加-Observer-监听-RunLoop-状态-可以监听点击事件的处理-在所有点击事件之前做一些事情" class="headerlink" title="(4) 添加 Observer 监听 RunLoop 状态, 可以监听点击事件的处理 (在所有点击事件之前做一些事情)"></a>(4) 添加 Observer 监听 RunLoop 状态, 可以监听点击事件的处理 (在所有点击事件之前做一些事情)</h3><p>调用 C 语言函数 CFRunLoopObserverCreateWithHandler () 创建 Observer, 监听某个 RunLoop 状态, 注意要手动释放</p>
+<h2 id="关于自动释放池与-RunLoop"><a href="#关于自动释放池与-RunLoop" class="headerlink" title="关于自动释放池与 RunLoop"></a>关于自动释放池与 RunLoop</h2><h3 id="Autorelease-pool"><a href="#Autorelease-pool" class="headerlink" title="Autorelease pool"></a>Autorelease pool</h3><p>在没有手加Autorelease Pool的情况下，Autorelease对象是在当前的runloop迭代结束时释放的，而它能够释放的原因是系统在每个runloop迭代中都加入了自动释放池Push和Pop</p>
+<p>也就意味着, 在@autorelasepool 中的代码, 默认都是加在了一个自动释放池当中, 这个自动释放池是与主线程的 RunLoop 相关, 内部所有对象会在自动释放池释放的时候对内部所有对象进行一次 release 操作</p>
+<p>至于主线程 RunLoop 下的自动释放池什么时候释放, 是在主线程 RunLoop 迭代 (睡眠)之前释放, 这个 RunLoop 什么时候睡眠呢? 是在没有接收任何输入源(事件源)/定时器的条件下</p>
+<h3 id="自动释放池什么时候释放"><a href="#自动释放池什么时候释放" class="headerlink" title="自动释放池什么时候释放?"></a>自动释放池什么时候释放?</h3><p>在 RunLoop 睡眠之前释放 (KCFRunLoopBeforeWaiting), 也有人说 Autorelease对象是在当前的runloop迭代结束时释放的, 实际是一个意思</p>
+<h3 id="什么时候用-autoreleasepool"><a href="#什么时候用-autoreleasepool" class="headerlink" title="什么时候用@autoreleasepool"></a>什么时候用@autoreleasepool</h3><p>根据Apple的文档，使用场景如下：</p>
+<ul>
+<li>写基于命令行的的程序时，就是没有UI框架，如AppKit等Cocoa框架时。</li>
+<li>写循环，循环里面包含了大量临时创建的对象。（本文的例子）</li>
+<li>创建了新的线程。（非Cocoa程序创建线程时才需要）</li>
+<li>长时间在后台运行的任务。</li>
+</ul>
+<h2 id="RunLoop-研究资料"><a href="#RunLoop-研究资料" class="headerlink" title="RunLoop 研究资料"></a>RunLoop 研究资料</h2><ul>
+<li>苹果官方文档<br><a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html" target="_blank" rel="noopener">https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html</a></li>
+<li>CFRunLoopRef 是开源的<br><a href="http://opensource.apple.com/source/CF/CF-1151.16/" target="_blank" rel="noopener">http://opensource.apple.com/source/CF/CF-1151.16/</a></li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>李明杰关于 RunLoop 的研究</li>
+<li>sunnyxx-<a href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/" target="_blank" rel="noopener">http://blog.sunnyxx.com/2014/10/15/behind-autorelease/</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/15/使用UICollectionView自定义样式01-水平线性布局/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jasperay">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Alex's Field">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/15/使用UICollectionView自定义样式01-水平线性布局/" itemprop="url">使用UICollectionView自定义样式01-水平线性布局</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-15T22:00:08+08:00">
+                2018-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>UICollectionView 是 iOS6 推出的 API, 可以实现复杂的定制效果, 使用和 UITableView 类似, 这篇主要通过自定义 UICollectionViewFlowLayout 实现一个左右滑动, 支持放大的相册效果</p>
+<h2 id="效果展示"><a href="#效果展示" class="headerlink" title="效果展示"></a>效果展示</h2><p><img src="http://upload-images.jianshu.io/upload_images/1141183-0d7c8baf4e22958f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="003.png"></p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ul>
+<li>可以滚动, 必定继承自 UIScrollView</li>
+<li>数据量未知, 为了避免内存过大导致 crash, 因此需要使用具有循环利用机制的控件, 否则还需要自写一套循环利机制</li>
+<li>UITableView 也可实现, 但是比较奇葩 (需要将整个 tableView 90 °, cell 内容旋转 90 °)</li>
+<li>自定义 UICollectionViewLayout 完全可以满足需求, 并实现一套完全可以复用的布局方案</li>
+<li>可继承自 UICollectionView 提供 的 UICollectionViewFlowLayout, 并在此基础上做改动</li>
+</ul>
+<h2 id="API-简介"><a href="#API-简介" class="headerlink" title="API 简介"></a>API 简介</h2><p>UICollectionViewLayout 提供了以下 API 控制自定义布局的样式, 实现定制效果</p>
+<h4 id="01-layoutAttributesForElementsInRect"><a href="#01-layoutAttributesForElementsInRect" class="headerlink" title="01 - layoutAttributesForElementsInRect:"></a>01 - layoutAttributesForElementsInRect:</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (nullable NSArray&lt;__kindof UICollectionViewLayoutAttributes *&gt; *)layoutAttributesForElementsInRect:(CGRect)rect; // return an array layout attributes instances for all the views in the given rect</span><br></pre></td></tr></table></figure>
+<ul>
+<li>这个方法的返回值是一个数组（数组里面存放着rect范围内所有元素的布局属性）</li>
+<li>这个方法的返回值决定了rect范围内所有元素的排布（frame)</li>
+<li>返回数组内存放的是 UICollectionViewLayoutAttributes 对象, 一个 cell 对应一个 UICollectionViewLayoutAttributes 对象, 该对象决定了 cell 的 frame</li>
+</ul>
+<h4 id="02-prepareLayout"><a href="#02-prepareLayout" class="headerlink" title="02 - prepareLayout"></a>02 - prepareLayout</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)prepareLayout;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>用来做布局的初始化操作</li>
+<li>不建议在 init 方法中进行布局的初始化操作</li>
+<li>一定要调用[super prepareLayout], 官方文档中有明确注释, Subclasses should always call super if they override.</li>
+</ul>
+<h4 id="03-shouldInvalidateLayoutForBoundsChange"><a href="#03-shouldInvalidateLayoutForBoundsChange" class="headerlink" title="03 - shouldInvalidateLayoutForBoundsChange:"></a>03 - shouldInvalidateLayoutForBoundsChange:</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds; // return YES to cause the collection view to requery the layout for geometry information</span><br></pre></td></tr></table></figure>
+<p>如果返回YES，那么collectionView显示的范围发生改变时，就会重新刷新布局<br>一旦重新刷新布局，就会按顺序调用下面的方法：</p>
+<ul>
+<li>prepareLayout</li>
+<li>layoutAttributesForElementsInRect:</li>
+</ul>
+<h4 id="04-targetContentOffsetForProposedContentOffset"><a href="#04-targetContentOffsetForProposedContentOffset" class="headerlink" title="04 - targetContentOffsetForProposedContentOffset:"></a>04 - targetContentOffsetForProposedContentOffset:</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity; // return a point at which to rest after scrolling - for layouts that want snap-to-point scrolling behavior</span><br></pre></td></tr></table></figure>
+<p>这个方法的返回值，就决定了collectionView停止滚动时的偏移量<br>参数：</p>
+<ul>
+<li>proposedContentOffset：collectionView停止滚动时最终的偏移</li>
+<li>velocity：滚动速率，通过这个参数可以了解滚动的方向</li>
+</ul>
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><h4 id="01-重写-layoutAttributesForElementsInRect-方法"><a href="#01-重写-layoutAttributesForElementsInRect-方法" class="headerlink" title="01 - 重写 layoutAttributesForElementsInRect: 方法]"></a>01 - 重写 layoutAttributesForElementsInRect: 方法]</h4><ul>
+<li>调用 [super layoutAttributesForElementsInRect], 拿到父类算好的 cell 布局属性(位置和尺寸)数组  </li>
+<li>遍历布局属性数组, 修改每个 cell 布局属性的缩放比例 scale (原则应该是在一定范围内, cell 距离 collectionView 的 contentView 中心线越近, cell 显示比例越大)</li>
+<li><p>在父类算好的基础上进行修改 (transform), 修改完后, 返回这个数组即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect</span><br><span class="line">&#123;</span><br><span class="line">  // 获得super已经计算好的布局属性</span><br><span class="line">  NSArray *array = [super layoutAttributesForElementsInRect:rect];</span><br><span class="line"> </span><br><span class="line">  // 计算collectionView最中心点的x值</span><br><span class="line">  CGFloat centerX = self.collectionView.contentOffset.x + self.collectionView.frame.size.width * 0.5;</span><br><span class="line"> </span><br><span class="line">  // 在原有布局属性的基础上，进行微调</span><br><span class="line">  for (UICollectionViewLayoutAttributes *attrs in array) &#123;</span><br><span class="line">    // cell的中心点x 和 collectionView最中心点的x值 的间距</span><br><span class="line">    CGFloat delta = ABS(attrs.center.x - centerX);</span><br><span class="line">   </span><br><span class="line">    // 根据间距值 计算 cell的缩放比例</span><br><span class="line">    CGFloat scale = 1 - delta / self.collectionView.frame.size.width;</span><br><span class="line">   </span><br><span class="line">    // 设置缩放比例</span><br><span class="line">    attrs.transform = CGAffineTransformMakeScale(scale, scale);</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  return array;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="02-重写-shouldInvalidateLayoutForBoundsChange-方法-返回-YES"><a href="#02-重写-shouldInvalidateLayoutForBoundsChange-方法-返回-YES" class="headerlink" title="02 -  重写 shouldInvalidateLayoutForBoundsChange 方法, 返回 YES"></a>02 -  重写 shouldInvalidateLayoutForBoundsChange 方法, 返回 YES</h4><p>意味着当collectionView显示的范围发生改变时，就会重新刷新布局, 一旦刷新布局, 就会按顺序调用:</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)prepareLayout;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (nullable NSArray&lt;__kindof UICollectionViewLayoutAttributes *&gt; *)layoutAttributesForElementsInRect:(CGRect)rect; // return an array layout attributes instances for all the views in the given rect</span><br></pre></td></tr></table></figure>
+<h4 id="03-重写-targetContentOffsetForProposedContentOffset-方法决定-collectionView-停止滚动时的偏移量"><a href="#03-重写-targetContentOffsetForProposedContentOffset-方法决定-collectionView-停止滚动时的偏移量" class="headerlink" title="03 - 重写 targetContentOffsetForProposedContentOffset: 方法决定 collectionView 停止滚动时的偏移量"></a>03 - 重写 targetContentOffsetForProposedContentOffset: 方法决定 collectionView 停止滚动时的偏移量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity</span><br><span class="line">&#123;</span><br><span class="line">  // 计算出最终显示的矩形框</span><br><span class="line">  CGRect rect;</span><br><span class="line">  rect.origin.y = 0;</span><br><span class="line">  rect.origin.x = proposedContentOffset.x;</span><br><span class="line">  rect.size = self.collectionView.frame.size;</span><br><span class="line"> </span><br><span class="line">  // 获得super已经计算好的布局属性</span><br><span class="line">  NSArray *array = [super layoutAttributesForElementsInRect:rect];</span><br><span class="line"> </span><br><span class="line">  // 计算collectionView最中心点的x值</span><br><span class="line">  CGFloat centerX = proposedContentOffset.x + self.collectionView.frame.size.width * 0.5;</span><br><span class="line"> </span><br><span class="line">  // 存放最小的间距值</span><br><span class="line">  CGFloat minDelta = MAXFLOAT;</span><br><span class="line">  for (UICollectionViewLayoutAttributes *attrs in array) &#123;</span><br><span class="line">    if (ABS(minDelta) &gt; ABS(attrs.center.x - centerX)) &#123;</span><br><span class="line">      minDelta = attrs.center.x - centerX;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  // 修改原有的偏移量</span><br><span class="line">  proposedContentOffset.x += minDelta;</span><br><span class="line">  return proposedContentOffset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="04-补充-关于-scale-缩放比例"><a href="#04-补充-关于-scale-缩放比例" class="headerlink" title="04 - (补充) 关于 scale - 缩放比例"></a>04 - (补充) 关于 scale - 缩放比例</h4><p> 计算出 cell 的中心线和 collectionView 的 contentView 的中心线的绝对距离 delta</p>
+<ul>
+<li><p>计算collectionView最中心点的x值</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGFloat centerX = self.collectionView.contentOffset.x + self.collectionView.frame.size.width * 0.5;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>计算cell的中心点 x 和 collectionView 最中心点的 x 值的间距</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGFloat delta = ABS(attrs.center.x - centerX);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>根据 delta, 加一定系数, 算出 scale</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGFloat scale = 1 - delta / self.collectionView.frame.size.width;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="UICollectionView-的优点"><a href="#UICollectionView-的优点" class="headerlink" title="UICollectionView 的优点"></a>UICollectionView 的优点</h2><ul>
+<li>相对与功能简单的 TableView, 能实现复杂的定制效果</li>
+<li>内部缓存机制, cell 复用</li>
+<li>TableView 类似的 dataSource, delegate 方法, 简单易用的 API</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>UICollectionView 提供的自定义 layout 功能可以方便定制很多效果, 比如电商应用常见的瀑布流, tagView 等等</li>
+<li>UITableView 是以行为单位, 功能有限, 而 UICollectionView 可以方便的通过自定 layout 实现各种不同效果</li>
+<li>UICollectionView 也可以通过自定 layout 实现 UITableView</li>
+<li>UICollectionView 内部的循环利用机制可以有效的节约内存, 防止程序 crash</li>
+</ul>
+<h2 id="程序代码地址"><a href="#程序代码地址" class="headerlink" title="程序代码地址"></a>程序代码地址</h2><p><a href="https://git.oschina.net/aLonelyRoot3/AYCustomLayout.git" target="_blank" rel="noopener">https://git.oschina.net/aLonelyRoot3/AYCustomLayout.git</a><br>UICollectionView 实现的很多其他流行效果会在以后贴出</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/15/const修饰全局变量取代宏定义/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jasperay">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Alex's Field">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/15/const修饰全局变量取代宏定义/" itemprop="url">const修饰全局变量取代宏定义</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-15T21:56:58+08:00">
+                2018-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h2><p>C系程序中广泛使用宏定义,宏只是一种简单的字符串替换，根据是否带参数分为无参和带参<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 宽高</span><br><span class="line">#define kWBCellTopMargin 8      // cell 顶部灰色留白</span><br><span class="line">#define kWBCellTitleHeight 36   // cell 标题高度 (例如&quot;仅自己可见&quot;)</span><br><span class="line">#define kWBCellPadding 12       // cell 内边距</span><br><span class="line">#define kWBCellPaddingText 10   // cell 文本与其他元素间留白</span><br><span class="line">#define kWBCellPaddingPic 4     // cell 多张图片中间留白</span><br><span class="line">#define kWBCellProfileHeight 56 // cell 名片高度</span><br><span class="line">#define kWBCellCardHeight 70    // cell card 视图高度</span><br><span class="line">#define kWBCellNamePaddingLeft 14 // cell 名字和 avatar 之间留白</span><br><span class="line">#define kWBCellContentWidth (kScreenWidth - 2 * kWBCellPadding) // cell 内容宽度</span><br><span class="line">#define kWBCellNameWidth (kScreenWidth - 110) // cell 名字最宽限制</span><br></pre></td></tr></table></figure></p>
+<p>开发中可能用这么一大堆的宏定义来记录某段间距, 某个视图的高度, 或者某段字符串等, 宏定义可以简单的理解为一个常量</p>
+<p>###宏的优点<br>这样做的目的在于用一个比较清楚的名称记录某个常量, 集中在某个区域管理这些常量, 在以后方便修改,修改一处便可以修改全局</p>
+<p>###宏的缺点<br>但是如果一份代码中有多处需要访问某个宏的值, 这种方法就变得不可行</p>
+<ul>
+<li><p>你可能会想到将这些宏定义放入.pch文件内,这样不就可以办到全局访问了, 但是这样会使.pch文件内部变得十分臃肿</p>
+</li>
+<li><p>你可能又会想到将这些宏定义在一个头文件内, 然后再将这个头文件导入到.pch文件内, 这样就可以办到全局访问了, 但是这样仍然存在问题</p>
+</li>
+<li><p>比如我的一份代码内有10处用到kWBCellTopMargin这个宏, 每次用到这个宏, 系统相当于需要分配一块临时内存给这个宏, 这样累计多了, 会比较浪费</p>
+</li>
+</ul>
+<h2 id="const修饰的全局变量"><a href="#const修饰的全局变量" class="headerlink" title="const修饰的全局变量"></a>const修饰的全局变量</h2><p>比较好的做法应该是使用”全局常量”, 类似于这种形式</p>
+<ul>
+<li>const CGFloat AYAlpha = 0.5;</li>
+<li>const NSString *AYName = @”陈洋”;</li>
+</ul>
+<p>为了保证这个变量不被其他地方修改,做到只读, 使用const修饰,变量也就变为了常量</p>
+<h3 id="const全局变量的优势"><a href="#const全局变量的优势" class="headerlink" title="const全局变量的优势"></a>const全局变量的优势</h3><ul>
+<li>这样也保证了常量在创建的时候, 开辟一块内存, 而全局的其他地方, 只是访问它, 不会开辟临时内存</li>
+<li>完全可以代替宏的作用</li>
+</ul>
+<h3 id="建议做法"><a href="#建议做法" class="headerlink" title="建议做法"></a>建议做法</h3><p>为了集中管理, 分清业务逻辑, 可以在工程内单独建立一个文件管理这些”全局常量”</p>
+<p>一般情况, 我会在工程内搞一个名为AYConst的.h和.m文件, 注意这两个文件并不是构成一个类, 并不具备类的入口, 这样命名只是为了层次清楚</p>
+<p>.m文件 (保存全局常量)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;UIKit/UIKit.h&gt;</span><br><span class="line"></span><br><span class="line">const CGFloat AYCellTopMargin = 8.0;</span><br><span class="line">const CGFloat AYCellLeftMargin = 0.6;</span><br><span class="line">const CGFloat AYCellRightMargin = 0.7;</span><br><span class="line">const CGFloat AYAlpha = 1.0;</span><br><span class="line">NSString * const AYName = @&quot;jack&quot;;</span><br></pre></td></tr></table></figure></p>
+<p>.h文件(此文件导入到.pch文件, 让每个文件都可以引用)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;UIKit/UIKit.h&gt;</span><br><span class="line"></span><br><span class="line">UIKIT_EXTERN const CGFloat AYCellTopMargin;</span><br><span class="line">UIKIT_EXTERN const CGFloat AYCellLeftMargin;</span><br><span class="line">UIKIT_EXTERN const CGFloat AYCellRightMargin;</span><br><span class="line">UIKIT_EXTERN const CGFloat AYAlpha;</span><br><span class="line">UIKIT_EXTERN NSString * const AYName;</span><br></pre></td></tr></table></figure></p>
+<p>我会根据需求，将.h导入合适的位置，对应使用的类也会引用到存在于.m文件中的这些全局常量</p>
+<p>###关于UIKIT_EXTERN关键字<br>UIKIT_EXTERN关键字是OC中苹果推荐的引用外部变量的关键字, 实际就是extern关键字的OC优化,作用和extern一致,引用外部变量需要的关键字</p>
+<h2 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h2><p>###关于const关键字的位置问题</p>
+<ul>
+<li>const NSString *p;</li>
+<li>NSString const *p;</li>
+<li>NSString *const p;</li>
+</ul>
+<p>判断准则: 看const右侧修饰的变量是谁</p>
+<ul>
+<li>前两个都是修饰的*p,也就是指针指向的变量是”readOnly”的,指针p是可以指向其他内存空间的,前两种写法一致</li>
+<li>最后一个修饰的是p,也就是指针p不能再指向其他内存空间, 但是p指向的变量却是可以改变的</li>
+</ul>
+<hr>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/15/理解iOS中的GCD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jasperay">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Alex's Field">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/15/理解iOS中的GCD/" itemprop="url">理解iOS中的GCD</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-15T21:55:32+08:00">
+                2018-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>关于GCD，大体上要说的有这些：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1141183-eeb384c0c10f6e66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="本文就这么点事.png"></p>
+<h2 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h2><p>一个千篇一律的应届生面试题：什么是进程和线程，以及二者的区别和联系</p>
+<h4 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h4><p>像Xcode，GitBook一样，系统中正在运行的应用程序，可以说系统中有一个运行的程序，系统就会启动一个进程</p>
+<h4 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h4><p>可以说，线程是进程的子单元，是进程执行的基本单位，进程中所有的任务都是在线程中执行。</p>
+<h4 id="多线程-1"><a href="#多线程-1" class="headerlink" title="多线程"></a>多线程</h4><p>一个进程可能在同时执行多个任务，比如说，chrome浏览器可以一边执行文件的下载任务，一边进行网页的浏览，设置还可以一边执行音乐的播放任务。<br>这就需要系统为chrome开辟多条线程协同操作，让每条线程分别执行不同的任务，并且是同时</p>
+<h4 id="线程间只是看上去的“同时执行”"><a href="#线程间只是看上去的“同时执行”" class="headerlink" title="线程间只是看上去的“同时执行”"></a>线程间只是看上去的“同时执行”</h4><ul>
+<li>实际上在同一时间，CPU仅仅能处理一条线程，只有一条线程在执行</li>
+<li>N多条线程同时执行，实际上是CPU快速的在多条线程之间频繁的调度（众所周知CPU的执行频率是极其快速的，调度足够快便可以认为是“同时执行”）</li>
+</ul>
+<p>多线程的优点在于可以充分的利用CPU的“多核心”，提高系统资源的利用率，提高程序执行效率。<br>但是存在一定弊端：</p>
+<ul>
+<li>创建线程具有一定开销（iOS主要包括：内核数据结构（大约1KB）、栈空间（子线程512KB、主线程1MB，也可以使用-setStackSize:设置，但必须是4K的倍数，而且最小是16K），创建线程大约需要90毫秒的创建时间）</li>
+<li>开启大量线程，会降低程序性能</li>
+<li>线程越多，CPU在调度线程上的开销就越大</li>
+<li>程序设计更加复杂：比如线程之间的通信、多线程的数据共享，势必带来更多逻辑问题</li>
+</ul>
+<h4 id="iOS开发与多线程"><a href="#iOS开发与多线程" class="headerlink" title="iOS开发与多线程"></a>iOS开发与多线程</h4><ul>
+<li>一个iOS程序运行后，默认会开启1条线程，称为“主线程”或“UI线程”</li>
+<li>主线程的主要作用是显示\刷新UI界面，处理UI事件（比如点击事件、滚动事件、拖拽事件等）</li>
+<li>开发中需注意不要将比较耗时的操作放到主线程中，考虑到用户体验，实际上这里就需要理解线程的串行执行。</li>
+</ul>
+<h4 id="线程的串行执行"><a href="#线程的串行执行" class="headerlink" title="线程的串行执行"></a>线程的串行执行</h4><ul>
+<li>一个线程中的任务是串行执行的</li>
+<li>一个线程中执行多个任务，只能一个一个的按顺序执行、</li>
+<li>因此比较耗时的操作应该放在“非主线程”</li>
+</ul>
+<h4 id="iOS多线程的实现方案"><a href="#iOS多线程的实现方案" class="headerlink" title="iOS多线程的实现方案"></a>iOS多线程的实现方案</h4><p><img src="http://upload-images.jianshu.io/upload_images/1141183-28cbcfa48cfa6753.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="iOS多线程的实现方案.png"></p>
+<h2 id="为什么研究GCD"><a href="#为什么研究GCD" class="headerlink" title="为什么研究GCD"></a>为什么研究GCD</h2><p>研究GCD的目的在于：</p>
+<ul>
+<li>相对于pThread，NSThread这两种功能简单的实现多线程的方案，GCD可以提供了更为强大的API实现更复杂的需求。</li>
+<li>之后的NSOperation也是基于GCD的OC包装，并在此基础上实现的更高级的功能。</li>
+</ul>
+<p>因此，研究GCD对于研究多线程技术是不可或缺的。</p>
+<h2 id="什么是GCD"><a href="#什么是GCD" class="headerlink" title="什么是GCD ?"></a>什么是GCD ?</h2><p>Grand Central Dispatch (GCD) 是 Apple 开发的一个多核编程的解决方法，iOS4.0推出，是替代NSThread的技术，基于C语言的API，大部分是通过配合block进行使用</p>
+<h2 id="任务和队列"><a href="#任务和队列" class="headerlink" title="任务和队列"></a>任务和队列</h2><p>研究GCD，需要弄清楚GCD的几个名词，包括任务、队列。GCD进行线程操作，需要配合使用任务和队列。</p>
+<h3 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h3><ul>
+<li>想要做的事情/执行什么操。</li>
+<li>GCD 中的任务可以定义在block中。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void (^myBlock)() = ^&#123;</span><br><span class="line">    // 想要做的事情/任务</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><ul>
+<li>用来’存放’任务</li>
+<li>队列 != 线程</li>
+<li>队列中存放的任务最后都要由线程来执行</li>
+<li>队列的原则:先进先出,后进后出(FIFO/ First In First Out)</li>
+</ul>
+<p>队列的类型包括：</p>
+<h4 id="串行队列-Serial-Dispatch-Queue"><a href="#串行队列-Serial-Dispatch-Queue" class="headerlink" title="串行队列 : (Serial Dispatch Queue)"></a>串行队列 : (Serial Dispatch Queue)</h4><ul>
+<li>存放按顺序执行的任务!(一个任务执行完毕,再执行下一个任务)</li>
+<li>创建方法 - 指定为 DISPATCH_QUEUE_SERIAL 类型<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 创建一个串行队列</span><br><span class="line">    dispatch_queue_t serialQueue = dispatch_queue_create(&quot;serial&quot;, DISPATCH_QUEUE_SERIAL);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="并发队列-Concurrent-Dispatch-Queue"><a href="#并发队列-Concurrent-Dispatch-Queue" class="headerlink" title="并发队列 : (Concurrent Dispatch Queue)"></a>并发队列 : (Concurrent Dispatch Queue)</h4><ul>
+<li>存放想要同时(并发)执行的任务，这里可能会有疑惑，但是注意队列不等于线程就OK了</li>
+<li>创建方法 - 指定为 DISPATCH_QUEUE_CONCURRENT 类型</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 创建一个并发队列</span><br><span class="line">dispatch_queue_t concurrentQueue = dispatch_queue_create(&quot;concurrent&quot;,DISPATCH_QUEUE_CONCURRENT);</span><br></pre></td></tr></table></figure>
+<p>###注意两个非常常用的特殊队列:</p>
+<h4 id="主队列"><a href="#主队列" class="headerlink" title="主队列"></a>主队列</h4><ul>
+<li>UI 操作放在主队列中执行</li>
+<li>跟主线程相关联的队列!</li>
+<li>主队列是 GCD 自带的一种特殊的串行队列，注意是串行</li>
+<li>主队列中的任务都会在主线程中执行</li>
+<li>获取主队列</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t mainQueue = dispatch_get_main_queue();</span><br></pre></td></tr></table></figure>
+<h4 id="全局并发队列"><a href="#全局并发队列" class="headerlink" title="全局并发队列"></a>全局并发队列</h4><ul>
+<li>一般情况下，并发任务都可以放在全局并发队列中</li>
+<li>获取全局并发队列</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t globalQueue = dispatch_get_global_queue(0, 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="执行函数"><a href="#执行函数" class="headerlink" title="执行函数"></a>执行函数</h2><p>有了队列是远远不够的，队列仅仅用来存放任务。队列的类型只是告诉GCD，以后我的任务是想要按顺序执行or同时执行，注意是“想要”。但是GCD想要执行队列中的任务，开线程也好，不开线程也罢，总之需要配合执行函数。</p>
+<p>从功能上讲，大体可以分为两种（在不细分的前提下）</p>
+<h3 id="dispatch-sync"><a href="#dispatch-sync" class="headerlink" title="dispatch_sync"></a>dispatch_sync</h3><ul>
+<li>同步执行函数</li>
+<li>只能在“当前”线程执行任务</li>
+<li>不能开启新线程</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dispatch_sync(&lt;#dispatch_queue_t queue#&gt;, &lt;#^(void)block#&gt;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>&lt;#dispatch _queue _t queue#&gt; :队列</li>
+<li>&lt;#^ ( void)block#&gt;:任务</li>
+</ul>
+<h3 id="dispatch-async"><a href="#dispatch-async" class="headerlink" title="dispatch_async"></a>dispatch_async</h3><ul>
+<li>异步执行函数</li>
+<li>可以开新线程，可以在新线程内执行任务</li>
+<li>注意是“可以”开新线程，并不意味着一定就会开新线程</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dispatch_async(dispatch_queue_t queue, &lt;#^(void)block#&gt;)</span><br></pre></td></tr></table></figure>
+<p>第三点是什么意思呢？这里需要理解队列和执行函数的组合情况，你需要知道的是 dispatch_sync 是一定不会开新线程的，而 dispatch_async 则可能会开新线程，仅仅是“可能”，有些队列和执行函数的组合情况是不会开启新线程的，至于哪些情况，看下文。</p>
+<h3 id="同步和异步执行顺序的问题"><a href="#同步和异步执行顺序的问题" class="headerlink" title="同步和异步执行顺序的问题"></a>同步和异步执行顺序的问题</h3><p>这个问题不好描述，但是很重要，可以描述成这样：</p>
+<ul>
+<li>同步函数中的任务，是马上执行的</li>
+<li>异步函数中的任务，是在整个方法的代码块结束之后，再返回去执行的</li>
+</ul>
+<p>你可能不理解，那么看代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">- (void)syncConcurrent</span><br><span class="line">&#123;</span><br><span class="line">    // 1.获得全局的并发队列</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    </span><br><span class="line">    // 2.将任务加入队列</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;1-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;2-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;3-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    NSLog(@&quot;syncConcurrent--------end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一个同步执行函数 + 全局并发队列，打印的结果是 1，2，3，end，并且全部是在主线程</p>
+<p>异步函数的代码是这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">- (void)asyncConcurrent</span><br><span class="line">&#123;</span><br><span class="line">    // 1.创建一个并发队列</span><br><span class="line">   </span><br><span class="line">    // 1.获得全局的并发队列</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    </span><br><span class="line">    // 2.将任务加入队列</span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        for (NSInteger i = 0; i&lt;10; i++) &#123;</span><br><span class="line">            NSLog(@&quot;1-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        for (NSInteger i = 0; i&lt;10; i++) &#123;</span><br><span class="line">            NSLog(@&quot;2-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        for (NSInteger i = 0; i&lt;10; i++) &#123;</span><br><span class="line">            NSLog(@&quot;3-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    NSLog(@&quot;asyncConcurrent--------end&quot;);</span><br><span class="line">//    dispatch_release(queue);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一个异步执行函数 + 全局并发队列，打印的结果是 “asyncConcurrent——–end” 在第一个，end在前啊，你明白了么？</p>
+<h2 id="GCD的使用步骤"><a href="#GCD的使用步骤" class="headerlink" title="GCD的使用步骤"></a>GCD的使用步骤</h2><ul>
+<li>将任务添加到队列中</li>
+<li>选择同步还是异步的方式执行任务</li>
+</ul>
+<p>实际上GCD提供的使用方法，我知道的有两种，一种是block封装任务的形式，另一种是 dispatch_async_f 的形式，一般情况下使用第一种。</p>
+<ul>
+<li>block 封装任务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line"></span><br><span class="line">  dispatch_async(queue, ^&#123;</span><br><span class="line"></span><br><span class="line">      // 想要执行的任务</span><br><span class="line">      ...</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>dispatch_ async_ f（）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> void download(void * data)</span><br><span class="line">&#123;</span><br><span class="line">    // 想要执行的任务</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line"> dispatch_async_f(queue, NULL, download);</span><br></pre></td></tr></table></figure>
+<h2 id="常见组合形式"><a href="#常见组合形式" class="headerlink" title="常见组合形式"></a>常见组合形式</h2><p>排列组合，我们可以依次研究以下几种组合方法</p>
+<h3 id="同步函数-串行队列"><a href="#同步函数-串行队列" class="headerlink" title="同步函数 + 串行队列"></a>同步函数 + 串行队列</h3><ul>
+<li>dispatch_sync + Serial Dispatch Queue</li>
+<li>不会开启新的线程</li>
+<li>在当前线程执行任务。</li>
+<li>任务是串行的，执行完一个任务，再执行下一个任务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">- (void)syncSerial</span><br><span class="line">&#123;</span><br><span class="line">    // 1.创建串行队列</span><br><span class="line">    dispatch_queue_t queue = dispatch_queue_create(&quot;SerialQueue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line"></span><br><span class="line">    // 2.将任务加入队列</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;1-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;2-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;3-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    NSLog(@&quot;-------end------&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 是从上到下依次打印的</span><br></pre></td></tr></table></figure>
+<h3 id="同步函数-并发队列"><a href="#同步函数-并发队列" class="headerlink" title="同步函数 + 并发队列"></a>同步函数 + 并发队列</h3><ul>
+<li>dispatch_sync + Concurrent Dispatch Queue / (Global Queue)</li>
+<li>不会开启新的线程</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">- (void)syncConcurrent</span><br><span class="line">&#123;</span><br><span class="line">    // 1.获得全局的并发队列</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    </span><br><span class="line">    // 2.将任务加入队列</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;1-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;2-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;3-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    NSLog(@&quot;syncConcurrent--------end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打印结果是 1，2，3，syncConcurrent，线程也都是主线程，因为是在主线程执行的此方法，因此判定这个组合也不会开新线程。</p>
+<h3 id="同步函数-主队列"><a href="#同步函数-主队列" class="headerlink" title="同步函数 + 主队列"></a>同步函数 + 主队列</h3><ul>
+<li>dispatch_sync + Main Queue</li>
+<li>可能会造成任务互相等待，卡住线程的问题</li>
+</ul>
+<p>首先看一段代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">- (void)syncMain</span><br><span class="line">&#123;</span><br><span class="line">    NSLog(@&quot;syncMain ----- begin&quot;);</span><br><span class="line">    </span><br><span class="line">    // 1.获得主队列</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_main_queue();</span><br><span class="line">    </span><br><span class="line">    // 2.将任务加入队列</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;1-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;2-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    dispatch_sync(queue, ^&#123;</span><br><span class="line">        NSLog(@&quot;3-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    NSLog(@&quot;syncMain ----- end&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这段代码只会打印 “syncMain —– begin”，这是为什么呢？ 因为发生了死锁<br>首先，基本的原理你应该要理解：</p>
+<ul>
+<li>主队列的任务都会放在主线程执行</li>
+<li>主线程如果有任务在处理，那就是处在一个忙碌的状态，此时，主队列会暂停调度任务，等待当前任务处理完再去执行其他任务</li>
+<li>dispatch_sync 不能开新线程，同步函数中的任务也是在主线程执行</li>
+<li>前文介绍的，同步函数中的任务，是马上要执行的</li>
+</ul>
+<p>有了这些，理解起来就很方便了。首先开始和结尾的这对大括号中间的内容算是一个任务A, 这是在主队列中的一个任务。方法 syncMain 一调用，先打印 begin；执行到第一个同步函数，这个主队列中的任务B“要求”马上被执行，很嚣张，但是此时主队列中的任务A还没有执行完。所以会卡在这个位置无法继续执行。</p>
+<h3 id="异步执行函数-串行队列"><a href="#异步执行函数-串行队列" class="headerlink" title="异步执行函数 + 串行队列"></a>异步执行函数 + 串行队列</h3><ul>
+<li>dispatch_async + Serial Dispatch Queue</li>
+<li>会开启新的线程，但是任务是串行的，执行完一个任务，再执行下一个任务</li>
+<li>有点浪费的感觉，像是没事找事</li>
+</ul>
+<h3 id="异步执行函数-并发队列"><a href="#异步执行函数-并发队列" class="headerlink" title="异步执行函数 + 并发队列"></a>异步执行函数 + 并发队列</h3><ul>
+<li>dispatch_async + Concurrent Dispatch Queue / (Global Queue)</li>
+<li>可以同时开启多条线程</li>
+<li>开发中常用的，多条线程并发执行的正确打开方式</li>
+</ul>
+<h3 id="异步函数-主队列"><a href="#异步函数-主队列" class="headerlink" title="异步函数 + 主队列"></a>异步函数 + 主队列</h3><ul>
+<li>dispatch_async + Main Queue</li>
+<li>只在主线程中执行任务</li>
+<li>并不会开新线程</li>
+</ul>
+<hr>
+<p>简单的总结一下各种组合情况，大致是这样：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1141183-143a08ea366cef32.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="GCD执行函数+队列的组合情况.png"></p>
+<h2 id="GCD的线程间通信"><a href="#GCD的线程间通信" class="headerlink" title="GCD的线程间通信"></a>GCD的线程间通信</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dispatch_async(dispatch_get_global_queue(0, 0), ^&#123;</span><br><span class="line">  </span><br><span class="line">  // 执行耗时的异步操作...</span><br><span class="line">   dispatch_async(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">      // 回到主线程，执行UI刷新操作</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="GCD的其他函数"><a href="#GCD的其他函数" class="headerlink" title="GCD的其他函数"></a>GCD的其他函数</h2><p>GCD的其他函数也是很常用的，像dispatch_after，dispatch_once，dispatch_group，下面会介绍几个。</p>
+<h3 id="dispatch-barrier-async"><a href="#dispatch-barrier-async" class="headerlink" title="dispatch_ barrier_ async"></a>dispatch_ barrier_ async</h3><ul>
+<li>barrier 是屏障、障碍、栅栏的意思</li>
+<li>顾名思义，是在线程管理中起一个栅栏的而作用</li>
+</ul>
+<p>什么意思呢？看下面代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t queue = dispatch_queue_create(&quot;12312312&quot;, DISPATCH_QUEUE_CONCURRENT);</span><br><span class="line"></span><br><span class="line">dispatch_async(queue, ^&#123;</span><br><span class="line">    NSLog(@&quot;----1-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">&#125;);</span><br><span class="line">dispatch_async(queue, ^&#123;</span><br><span class="line">    NSLog(@&quot;----2-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_barrier_async(queue, ^&#123;</span><br><span class="line">    NSLog(@&quot;----barrier-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_async(queue, ^&#123;</span><br><span class="line">    NSLog(@&quot;----3-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">&#125;);</span><br><span class="line">dispatch_async(queue, ^&#123;</span><br><span class="line">    NSLog(@&quot;----4-----%@&quot;, [NSThread currentThread]);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>这里的输出顺序是 1，2，barrier，3，4，也可能是2，1，barrier，4，3。</li>
+<li>总之，后两个任务会等待前两个执行完再执行，前面两个任务是并发执行。</li>
+<li>执行完在执行 barrier 中的任务，最后再并发执行后两个任务。</li>
+</ul>
+<h3 id="dispatch-after"><a href="#dispatch-after" class="headerlink" title="dispatch_after"></a>dispatch_after</h3><p>dispatch_after 是GCD提供的延时执行的函数，用法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">    NSLog(@&quot;run-----&quot;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这句代码意为2秒后执行block中的代码，在哪条线程执行取决于队列的类型。</p>
+<p>此外，iOS还可以通过以下几种方法实现延时执行：</p>
+<ul>
+<li>NSTimer</li>
+<li>NSObject的performSelector</li>
+</ul>
+<p>第一种使用定时器，大致是这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:NO];</span><br></pre></td></tr></table></figure>
+<p>其中第二种是调用以下API：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self performSelector:@selector(run) withObject:nil afterDelay:2.0];</span><br></pre></td></tr></table></figure>
+<p>还有一种不太常见的方法是让线程睡觉，但是会阻塞当前线程，一般不用。</p>
+<h3 id="dispatch-once"><a href="#dispatch-once" class="headerlink" title="dispatch_once"></a>dispatch_once</h3><ul>
+<li>一次性代码</li>
+<li>整个程序运行的过程中, 只调用用一次, 一旦被某个地方调用, 其他地方便无法调用</li>
+<li>可以用来实现单例</li>
+<li>线程安全的</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">static dispatch_once_t onceToken;</span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        // 只执行一次的代码(这里面默认是线程安全的).</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="dispatch-apply"><a href="#dispatch-apply" class="headerlink" title="dispatch_apply"></a>dispatch_apply</h3><ul>
+<li>快速迭代，快速遍历</li>
+<li>把一项任务提交到队列中多次执行，具体是并行执行还是串行执行由队列queue本身决定</li>
+<li>注意，dispatch_apply不会立刻返回，在执行完毕后才会返回，是同步的调用</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void</span><br><span class="line">dispatch_apply(size_t iterations, dispatch_queue_t queue,</span><br><span class="line">		void (^block)(size_t));</span><br></pre></td></tr></table></figure>
+<p>什么意思呢？我举个例子你可能就清楚了。</p>
+<p>比如说，我在文件夹A下存储了一堆图片，想剪切到文件夹B下，实际上我剪切图片的先后顺序是并不影响我的结果的，也就说剪切文件夹下单张图片是毫不相关的操作，这些操作并不存在先后依赖关系。</p>
+<p>常规的方法我可能需要 for 循环，对内部的每一张图片进行一次 move 操作，类似于这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">- (void)moveFile</span><br><span class="line">&#123;</span><br><span class="line">    NSString *from = @&quot;/Users/AY/Desktop/From&quot;;</span><br><span class="line">    NSString *to = @&quot;/Users/AY/Desktop/To&quot;;</span><br><span class="line"></span><br><span class="line">    NSFileManager *mgr = [NSFileManager defaultManager];</span><br><span class="line">    NSArray *subpaths = [mgr subpathsAtPath:from];</span><br><span class="line"></span><br><span class="line">    for (NSString *subpath in subpaths) &#123;</span><br><span class="line">        NSString *fromFullpath = [from stringByAppendingPathComponent:subpath];</span><br><span class="line">        NSString *toFullpath = [to stringByAppendingPathComponent:subpath];</span><br><span class="line">    </span><br><span class="line">    	  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;</span><br><span class="line">            // 剪切</span><br><span class="line">            [mgr moveItemAtPath:fromFullpath toPath:toFullpath error:nil];</span><br><span class="line">            </span><br><span class="line">            NSLog(@&quot;%@---%@&quot;, [NSThread currentThread], subpath);</span><br><span class="line"></span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们知道，这段代码是在一个代码块里，for 循环的执行过程是一个迭代的过程，循环多少次，就会迭代多少次。这里就算在每一次迭代的时候都会把剪切单张图片的任务开一个线程执行，但是这里是一个循环啊… 循环也就意味着是一个线性的迭代，迭代A执行过了，才会执行迭代B…</p>
+<p>如何能做到“同时迭代”呢？ GCD提供了dispatch_apply 函数。</p>
+<p>使用大致是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">- (void)apply</span><br><span class="line">&#123;</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    NSString *from = @&quot;/Users/AY/Desktop/From&quot;;</span><br><span class="line">    NSString *to = @&quot;/Users/AY/Desktop/To&quot;;</span><br><span class="line">    </span><br><span class="line">    NSFileManager *mgr = [NSFileManager defaultManager];</span><br><span class="line">    NSArray *subpaths = [mgr subpathsAtPath:from];</span><br><span class="line">    </span><br><span class="line">    dispatch_apply(subpaths.count, queue, ^(size_t index) &#123;</span><br><span class="line">        NSString *subpath = subpaths[index];</span><br><span class="line">        NSString *fromFullpath = [from stringByAppendingPathComponent:subpath];</span><br><span class="line">        NSString *toFullpath = [to stringByAppendingPathComponent:subpath];</span><br><span class="line">        // 剪切</span><br><span class="line">        [mgr moveItemAtPath:fromFullpath toPath:toFullpath error:nil];</span><br><span class="line">        </span><br><span class="line">        NSLog(@&quot;%@---%@&quot;, [NSThread currentThread], subpath);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样也就做到了，我的“剪切单张图片”的任务，是同时执行的，实现了快速遍历。</p>
+<h3 id="dispatch-group"><a href="#dispatch-group" class="headerlink" title="dispatch_group"></a>dispatch_group</h3><ul>
+<li>将任务放入队列中，然后将队列放入对列组</li>
+<li>队列组会让其中的任务都执行完之后，再调用 dispatch_group_notify 的 block</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> dispatch_group_t group = dispatch_group_create(); // 队列组</span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(0, 0); // 全局并发队列</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, queue, ^&#123;         // 异步执行操作1</span><br><span class="line">        // longTime1</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, queue, ^&#123;         // 异步执行操作2</span><br><span class="line">        // longTime2</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_notify(group, dispatch_get_main_queue(), ^&#123;     // 在主线程刷新数据</span><br><span class="line">        // reload Data</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="dispatch-once-实现单例模式"><a href="#dispatch-once-实现单例模式" class="headerlink" title="dispatch_once 实现单例模式"></a>dispatch_once 实现单例模式</h3><p>代码大致是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">static MBGlobalTool *_instance = nil;</span><br><span class="line"></span><br><span class="line">+ (instancetype)sharedInstance</span><br><span class="line">&#123;</span><br><span class="line">  static dispatch_once_t onceToken ;</span><br><span class="line">  dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">    _instance = [[self alloc] init] ;</span><br><span class="line">  &#125;) ;</span><br><span class="line"> </span><br><span class="line">  return _instance ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>越来越懒的开发者喜欢拖进去这样一个.h文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">// Single.h</span><br><span class="line">// CreateTools</span><br><span class="line">//</span><br><span class="line">// Created by AY on 16/6/27.</span><br><span class="line">// Copyright © 2016年 Jasperay. All rights reserved.</span><br><span class="line">//</span><br><span class="line"></span><br><span class="line">#ifndef Single_h</span><br><span class="line">#define Single_h</span><br><span class="line"></span><br><span class="line">#ifdef __OBJC__</span><br><span class="line"></span><br><span class="line">#pragma mark - 单例模式 .h文件内容</span><br><span class="line">#define SingleInterface(name) +(instancetype)share##name;</span><br><span class="line"></span><br><span class="line">#pragma mark - 单例模式 .m文件内容</span><br><span class="line">#if __has_feature(objc_arc)</span><br><span class="line">#define SingleImplementation(name) +(instancetype)share##name &#123;return [[self alloc]init];&#125; \</span><br><span class="line">+ (instancetype)allocWithZone:(struct _NSZone *)zone &#123; \</span><br><span class="line">static id instance; \</span><br><span class="line">static dispatch_once_t onceToken; \</span><br><span class="line">dispatch_once(&amp;onceToken, ^&#123; \</span><br><span class="line">instance = [super allocWithZone:zone]; \</span><br><span class="line">&#125;); \</span><br><span class="line">return instance; \</span><br><span class="line">&#125; \</span><br><span class="line">- (id)copyWithZone:(NSZone *)zone&#123;return self;&#125; \</span><br><span class="line">- (id)mutableCopyWithZone:(NSZone *)zone &#123;return self;&#125;</span><br><span class="line"></span><br><span class="line">#else</span><br><span class="line"></span><br><span class="line">#define SingleImplementation(name) +(instancetype)share##name &#123;return [[self alloc]init];&#125; \</span><br><span class="line">+ (instancetype)allocWithZone:(struct _NSZone *)zone &#123; \</span><br><span class="line">static id instance; \</span><br><span class="line">static dispatch_once_t onceToken; \</span><br><span class="line">dispatch_once(&amp;onceToken, ^&#123; \</span><br><span class="line">instance = [super allocWithZone:zone]; \</span><br><span class="line">&#125;); \</span><br><span class="line">return instance; \</span><br><span class="line">&#125; \</span><br><span class="line">- (id)copyWithZone:(NSZone *)zone&#123;return self;&#125; \</span><br><span class="line">- (id)mutableCopyWithZone:(NSZone *)zone &#123;return self;&#125; \</span><br><span class="line">- (instancetype)retain &#123;return self;&#125; \</span><br><span class="line">- (instancetype)autorelease &#123;return self;&#125; \</span><br><span class="line">- (oneway void)release &#123;&#125; \</span><br><span class="line">- (NSUInteger)retainCount &#123;return MAXFLOAT;&#125; \</span><br><span class="line"></span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">#endif /* Single_h */</span><br></pre></td></tr></table></figure>
+<p>然后，在写一个唯一实例的类的时候，只需要这样写：<br>.h<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SingleInterface(AYPerson)</span><br></pre></td></tr></table></figure></p>
+<p>.m<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SingleImplementation(AYPerson)</span><br></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p> 关于GCD更高级的使用，作者也是在不断的学习研究。有了这些基础，还有前面写过的<a href="http://www.jianshu.com/p/906c4319a21a" target="_blank" rel="noopener">RunLoop 学习笔记</a>也就方便研究 NSOperation，然后就可以研究注明框架如 AFNetWorking，SDWebImage等著名框架，相信有朝一日，你也可以写出这么优秀的框架。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/15/iOS开发-分析生产环境的Crash/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jasperay">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Alex's Field">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/15/iOS开发-分析生产环境的Crash/" itemprop="url">iOS开发-分析生产环境的Crash</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-15T21:52:39+08:00">
+                2018-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>APP 的 Crash 一般会定位为严重问题，生产环境下的 APP 一般需要做到 Crash 率高于 99.8%。真实的生产环境可能十分复杂，可能存在极其恶劣的网络环境的影响，后台传输数据格式不准确，内存处理不当等，这些都可能引发 APP 的 Crash。开发环境下，很难做到完全容错，测试也几乎不可能覆盖所有场景。因此，行之有效的监测机制几乎是必然的。</p>
+<h2 id="Objective-C-的不安全性"><a href="#Objective-C-的不安全性" class="headerlink" title="Objective-C 的不安全性"></a>Objective-C 的不安全性</h2><p>在 Objective-C 中，有些数据结构或方法只能接收非空的值，如果我们在调用这些方法时，没有做好充分的判断，错误的传入一个空值，这时候编译阶段并不会给出警告，在程序的运行时才会直接崩溃。类似于这段代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSData *data = [NSJSONSerialization dataWithJSONObject:array options:NSJSONWritingPrettyPrinted error:nil];</span><br><span class="line">NSString *jsonString = [[NSString alloc] initWithData:data encoding:(NSUTF8StringEncoding)];</span><br></pre></td></tr></table></figure>
+<p>在上述代码中，当变量 <code>array == nil</code> 时，程序即会崩溃。这类问题在开发中一般是由于数据的改变，没有做足够的容错处理。如果测试的覆盖率不全，极有可能在线上发生崩溃。</p>
+<p>在 Swift 中，在给上述方法传入 array 之前，需要对 array 做出明确的为空判断， 否则编译器会直接告警，一般会采用可选绑定（<code>if...let</code>）的形式对可选类型做判断，当能进入到对应的代码块，也就意味着 array 一定是有值的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">let array : [Any]? = [&quot;Alex&quot;]</span><br><span class="line">if let array = array &#123;</span><br><span class="line">    let data = try? JSONSerialization.data(withJSONObject: array, options: JSONSerialization.WritingOptions.prettyPrinted)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Swift 可以通过自身的一些语言特性让这些问题避免在开发阶段，但是 Objective-C  很难做到。对于 Objective-C 开发的程序，非常有必要做一定的 Crash 监听工作。当监听到这些信息之后，可以通过版本迭代或 <code>HotPatch</code> 的形式及时作出修复，避免用户的流失。</p>
+<p>在我们的项目中应用的是 <strong>友盟统计日志+dYSM分析工具</strong> 的形式，可以有效的解决一部分 Carsh。友盟统计只需要引入较少的代码，并在合适的时机调用极少的代码，无侵入性，容易移除。</p>
+<h2 id="友盟统计Crash日志"><a href="#友盟统计Crash日志" class="headerlink" title="友盟统计Crash日志"></a>友盟统计Crash日志</h2><p>友盟统计具有分析流量来源、用户属性、行为数据、错误分析等特性，在我们的产品中一般会接入用来统计程序的Crash日志。</p>
+<p>上线的 APP 集成了友盟统计后，当发生崩溃时，会在友盟统计后台的错误分析模块监听到崩溃日志。一般会看到两种错误类型：</p>
+<h4 id="1-明确指出了报错API"><a href="#1-明确指出了报错API" class="headerlink" title="1. 明确指出了报错API"></a>1. 明确指出了报错API</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">*** +[NSJSONSerialization dataWithJSONObject:options:error:]: value parameter is nil</span><br><span class="line">(null)</span><br><span class="line">((</span><br><span class="line">	0   CoreFoundation                      0x2268f933 &lt;redacted&gt; + 150</span><br><span class="line">	1   libobjc.A.dylib                     0x21e2ae17 objc_exception_throw + 38</span><br><span class="line">	2   CoreFoundation                      0x2268f861 &lt;redacted&gt; + 0</span><br><span class="line">	3   Foundation                          0x22f28341 &lt;redacted&gt; + 84</span><br><span class="line">	4   fuzhuxian                           0x80099 fuzhuxian + 508057</span><br><span class="line">	5   UIKit                               0x27060bd9 &lt;redacted&gt; + 68</span><br><span class="line">	6   UIKit                               0x27061283 &lt;redacted&gt; + 30</span><br><span class="line">	7   UIKit                               0x26f577e3 &lt;redacted&gt; + 1230</span><br><span class="line">	8   UIKit                               0x26f5aa85 &lt;redacted&gt; + 192</span><br><span class="line">	9   UIKit                               0x26d38157 &lt;redacted&gt; + 90</span><br><span class="line">	10  UIKit                               0x26c45ba5 &lt;redacted&gt; + 540</span><br><span class="line">	11  UIKit                               0x26c45685 &lt;redacted&gt; + 204</span><br><span class="line">	12  UIKit                               0x26c4557f &lt;redacted&gt; + 78</span><br><span class="line">	13  QuartzCore                          0x24ca5689 &lt;redacted&gt; + 252</span><br><span class="line">	14  libdispatch.dylib                   0x221fd80f &lt;redacted&gt; + 22</span><br><span class="line">	15  libdispatch.dylib                   0x2220bba9 &lt;redacted&gt; + 1524</span><br><span class="line">	16  CoreFoundation                      0x22651b6d &lt;redacted&gt; + 8</span><br><span class="line">	17  CoreFoundation                      0x22650067 &lt;redacted&gt; + 1574</span><br><span class="line">	18  CoreFoundation                      0x2259f229 CFRunLoopRunSpecific + 520</span><br><span class="line">	19  CoreFoundation                      0x2259f015 CFRunLoopRunInMode + 108</span><br><span class="line">	20  GraphicsServices                    0x23b8fac9 GSEventRunModal + 160</span><br><span class="line">	21  UIKit                               0x26c73189 UIApplicationMain + 144</span><br><span class="line">	22  fuzhuxian                           0x29af9 fuzhuxian + 154361</span><br><span class="line">	23  libdyld.dylib                       0x22247873 &lt;redacted&gt; + 2</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">dSYM UUID: 679C384A-0751-3B66-8BAC-FB0DB78AC7B6</span><br><span class="line">CPU Type: armv7</span><br><span class="line">Slide Address: 0x00004000</span><br><span class="line">Binary Image: fuzhuxian</span><br><span class="line">Base Address: 0x0004b000</span><br></pre></td></tr></table></figure>
+<p>这一类的 Crash 明确的指出了崩溃的方法，上图中的问题是 <code>NSJSONSerialization</code> 对象的 <code>dataWithJsonObject</code> 方法传入了一个为空的参数，并且列出了报错的内存地址。类似的会打印出具体报错API的还有数组越界问题等。</p>
+<h4 id="2-Application-received-signal-SIGSEGV"><a href="#2-Application-received-signal-SIGSEGV" class="headerlink" title="2. Application received signal SIGSEGV"></a>2. Application received signal SIGSEGV</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Application received signal SIGSEGV</span><br><span class="line">(null)</span><br><span class="line">((</span><br><span class="line">	0   CoreFoundation                      0x21b47933 &lt;redacted&gt; + 150</span><br><span class="line">	1   libobjc.A.dylib                     0x212e2e17 objc_exception_throw + 38</span><br><span class="line">	2   CoreFoundation                      0x21b47861 &lt;redacted&gt; + 0</span><br><span class="line">	3   fuzhuxian                           0x362d87 fuzhuxian + 3534215</span><br><span class="line">	4   libsystem_platform.dylib            0x2187606f _sigtramp + 34</span><br><span class="line">	5   Foundation                          0x22365af5 __NSFireDelayedPerform + 468</span><br><span class="line">	6   CoreFoundation                      0x21b0a58f &lt;redacted&gt; + 14</span><br><span class="line">	7   CoreFoundation                      0x21b0a1c1 &lt;redacted&gt; + 936</span><br><span class="line">	8   CoreFoundation                      0x21b0800d &lt;redacted&gt; + 1484</span><br><span class="line">	9   CoreFoundation                      0x21a57229 CFRunLoopRunSpecific + 520</span><br><span class="line">	10  CoreFoundation                      0x21a57015 CFRunLoopRunInMode + 108</span><br><span class="line">	11  GraphicsServices                    0x23047ac9 GSEventRunModal + 160</span><br><span class="line">	12  UIKit                               0x2612b189 UIApplicationMain + 144</span><br><span class="line">	13  fuzhuxian                           0x29c41 fuzhuxian + 154689</span><br><span class="line">	14  libdyld.dylib                       0x216ff873 &lt;redacted&gt; + 2</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">dSYM UUID: 27C7888F-E1F2-33DE-96ED-6031F25C66EC</span><br><span class="line">CPU Type: armv7</span><br><span class="line">Slide Address: 0x00004000</span><br><span class="line">Binary Image: fuzhuxian</span><br><span class="line">Base Address: 0x000f0000</span><br></pre></td></tr></table></figure>
+<p>这一类问题没有指出具体报错的方法，但是给出了可用来分析的内存地址 <code>0x362d87</code> 和 <code>0x29c41</code>。出现这种问题的原因一般是程序访问了无效的内存。</p>
+<p>实际上仅仅有这些报错的 API 或者 16 进制内存地址意义不大，因为依然不能反应出代码中的哪一个文件的哪一列出了错误。为了找出崩溃的具体位置，需要借助 dYSM 文件进行分析。</p>
+<p>##dYSM文件<br>dSYM 是保存 16 进制函数地址映射信息的中转文件，我们调试的 symbols 都会包含在这个文件中，并且每次编译项目的时候都会生成一个新的 dSYM 文件，位于 <code>/Users/&lt;用户名&gt;/Library/Developer/Xcode/Archives</code> 目录下。Xcode 编译项目后会看到一个同名的 dSYM 文件。</p>
+<p>每一个 xx.app 和 xx.app.dSYM 文件都有对应的 <code>UUID</code>，crash 文件也有自己的 <code>UUID</code>，只要这三个文件的 <code>UUID</code> 一致，我们就可以通过他们解析出正确的错误函数信息了。因此，对于每一个发布版本我们都很有必要保存对应的 <code>Archives</code> 文件 。</p>
+<p>##dSYM分析工具<br>我们的项目中用到了 <a href="https://github.com/answer-huang/dSYMTools" target="_blank" rel="noopener">dSYMTools</a> 作为分析工具分析 dSYM 文件，源码可以直接编译成 Mac APP。它的优点在于直接面向 <code>.xcarchive</code> 文件进行分析，不需要再去找对应的 dSYM 文件，系统会自动找到对应的 dSYM 文件。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1141183-2ae9c22b3685760e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="dSYMTools.png"></p>
+<p>可以直接将 <code>achieve</code> 出来的 <code>.xcarchive</code> 文件直接拖入到文件选择区域，选择对应的 CPU 类型（一般 iPhone5S 和 iPad Air 之后的是 <code>arm64</code> 类型），工具会默认匹配出可执行文件的 <code>UDID</code> 和 默认 <code>Slide Address</code>，只需要再键入报错的内存地址，如上文代错误内存代码中的 <code>0x80099</code>  <code>0x29af9</code>  <code>0x362d87</code>  <code>0x29c41</code>，点击分析，即可打印出可能出错的地方。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于每一个发布版本我们都很有必要保存对应的 <code>Archives</code> 文件 ，这个文件记录了<br> APP 的关键信息，可以作为日后分析问题的重要途径。</p>
+<p>在生产环境下通过集成友盟或其他 SDK 的形式监测 Crash 报告，这实际是一种滞后的监听机制，它并不能实时的改变代码、修复线上 Bug，但是可以提升程序员的信心。对于开发者来说不失是一种有效的解决问题的方法。</p>
+<p>Swift 可以在开发阶段有效的避免很大一部分上述问题 Xcode 自动的提示节省了一大部分思考的时间，让我们和你专注于业务逻辑的处理上，又保证了安全性，这对于开发者而言无非是一件好事。当然在写 Objective-C 时，基本的风险预估和容错处理也必不可少。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -452,7 +1516,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
